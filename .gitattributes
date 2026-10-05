@@ -1,0 +1,3 @@
+# Check out exactly as the kit ships (LF), even with core.autocrlf=true: install.sh must run in Git Bash.
+* text=auto eol=lf
+*.exe binary
