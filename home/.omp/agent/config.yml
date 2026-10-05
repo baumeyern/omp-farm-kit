@@ -1,0 +1,111 @@
+# ~/.omp/agent/config.yml: omp user settings (template from omp-portable-kit).
+# Provider and model choices are commented placeholders, so omp starts on its built-in
+# defaults until you fill them. "Source farm:" notes show how the machine this kit came from
+# had it set. List the models your accounts can use with `omp models` and `omp models <provider>`;
+# check one setting with `omp config get <key>`.
+
+# --- Shell --------------------------------------------------------------------------------------
+# Windows: point omp at Git Bash so agents get a POSIX shell. macOS/Linux: leave unset.
+# shellPath: C:\Program Files\Git\bin\bash.exe
+
+# --- Model roles --------------------------------------------------------------------------------
+# The primary model for each workload, as provider/model:thinking. `default` drives the main
+# session (the manager) and any agent without its own model. Role aliases (@smol, @slow, @task)
+# are used by task.agentModelOverrides below.
+# modelRoles:
+#   default: <provider>/<model>:high      # source farm: anthropic/claude-opus-5-5:high
+#   smol: <provider>/<fast-model>         # cheap/fast role for scouts (source farm: unset, omp default)
+#   slow: <provider>/<deep-model>         # thorough role for reviewers (source farm: unset)
+defaultThinkingLevel: high
+
+# --- Display (personal taste; safe to keep) -----------------------------------------------------
+hideThinkingBlock: true
+symbolPreset: unicode
+composer:
+  shape: band
+theme:
+  dark: titanium
+display:
+  pinnedAgents: "off"
+  subagentLivePreview: true
+
+# --- Tool approvals -----------------------------------------------------------------------------
+# yolo = agents run tools without asking. The source farm ran yolo, with the db-guard extension
+# as the one hard gate (database writes need the owner's typed approval). Use `write` or
+# `always-ask` if you want prompts.
+tools:
+  approvalMode: yolo
+
+# --- Retry and fallbacks ------------------------------------------------------------------------
+# When a model keeps failing (429, quota wall, outage), omp walks a fallback chain.
+# Chain lookup, most specific first: exact `provider/model` key, then `provider/*`, then the
+# session role's chain, then `default`. A `provider/*` ENTRY keeps the failing model id and swaps
+# the provider. Bare entries inherit the failing turn's thinking level.
+# Agents with a model LIST in their frontmatter (cursor-worker) get that list as a per-spawn chain.
+# Only list providers you are logged in to; paid pools (e.g. Cursor "Other Models") drain fast
+# when a whole farm falls back onto them.
+retry:
+  # fallbackChains:
+  #   <provider>/*:                       # source farm: anthropic/*
+  #     - <other-provider>/<model>:high   #   - openai-codex/gpt-5.6-sol:high
+  #     - <last-resort>                   #   - cursor/composer-2.5
+  #   <provider>/<model>:                 # source farm: cursor/composer-2.5
+  #     - <provider>/<model>:high         #   - anthropic/claude-opus-5-5:high
+  #   cursor/*:                           # source farm:
+  #     - <provider>/<model>              #   - anthropic/claude-opus-5-5
+  #                                       #   - openai-codex/gpt-5.6-sol:high
+  #                                       #   - cursor/composer-2.5
+  #   openai-codex/*:                     # source farm:
+  #     - <provider>/<model>              #   - cursor/gpt-5.6-sol (bills Cursor "Other Models")
+  #                                       #   - anthropic/claude-opus-5-5
+  #                                       #   - cursor/composer-2.5
+  usageAwareFallback: false     # true = pre-turn quota check that can switch accounts/models
+  usageReservePct: 0
+  usageReservePolicy: auto
+  fallbackRevertPolicy: cooldown-expiry   # return to the primary once its cooldown ends
+  waitForUsageReset: false      # true = park on a usage wall instead of failing (holds subagents)
+  maxRetries: 10
+  maxDelayMs: 300000
+
+providers:
+  openaiLiveSteering: false
+
+# --- Subagents ----------------------------------------------------------------------------------
+task:
+  # Per-run request budget for a `task` spawn: a wrap-up notice at N requests, a force-stop at
+  # 1.5 x N. Global (no per-agent override); scout/sonic stay capped at 100 by omp itself.
+  # Follow-up turns sent with `write agent://<Name>` have no budget. omp default 200.
+  softRequestBudget: 600
+  isolation:
+    enabled: true
+    merge: branch
+  # Model per bundled agent, via role aliases. Farm workers (claude/codex/cursor-worker) take
+  # their model from their own frontmatter instead.
+  agentModelOverrides:
+    task: "@task:high"
+    scout: "@smol:high"
+    sonic: "@smol:high"
+    reviewer: "@slow:high"
+    security-reviewer: "@default:high"
+
+# --- Skills -------------------------------------------------------------------------------------
+# The kit installs its skills into ~/.omp/agent/skills, which omp loads natively. Add more
+# directories here, e.g. Claude Code's skills dir; hide noisy skills with ignoredSkills.
+# skills:
+#   customDirectories:
+#     - <HOME>/.claude/skills
+#   ignoredSkills:
+#     - <skill-name>
+
+# --- Phone control (optional) -------------------------------------------------------------------
+# `control` publishes every interactive session through omp's encrypted relay; control links are
+# passwords. Pair with agent/scripts/collab-mailer.mjs (Windows) to get the link by email.
+# collab:
+#   autoStart: control
+
+# --- Compaction ---------------------------------------------------------------------------------
+# Compact an idle session's context once it passes the threshold.
+compaction:
+  idleEnabled: true
+  idleThresholdTokens: 300000
+  idleTimeoutSeconds: 900

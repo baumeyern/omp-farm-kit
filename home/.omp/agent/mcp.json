@@ -1,0 +1,52 @@
+{
+  "$schema": "https://raw.githubusercontent.com/can1357/oh-my-pi/main/packages/coding-agent/src/config/mcp-schema.json",
+  "mcpServers": {
+    "linear": {
+      "type": "http",
+      "url": "https://mcp.linear.app/mcp",
+      "enabled": false
+    },
+    "vercel": {
+      "type": "http",
+      "url": "https://mcp.vercel.com",
+      "enabled": false
+    },
+    "gmail": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "{{HOME}}/.omp/agent/mcp-servers/gmail/server.mjs",
+        "--env-file",
+        "{{HOME}}/.omp/secrets/gmail.env"
+      ],
+      "enabled": false
+    },
+    "google-drive": {
+      "type": "http",
+      "url": "https://drivemcp.googleapis.com/mcp/v1",
+      "oauth": {
+        "clientId": "${GOOGLE_WORKSPACE_MCP_CLIENT_ID}",
+        "clientSecret": "${GOOGLE_WORKSPACE_MCP_CLIENT_SECRET}",
+        "scope": "https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file",
+        "redirectUri": "http://localhost:3334/callback"
+      },
+      "enabled": false
+    },
+    "mobbin": {
+      "type": "http",
+      "url": "https://api.mobbin.com/mcp",
+      "enabled": false
+    },
+    "figma-desktop": {
+      "type": "http",
+      "url": "http://127.0.0.1:3845/mcp",
+      "timeout": 120000,
+      "enabled": false
+    },
+    "figma": {
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp",
+      "enabled": false
+    }
+  }
+}

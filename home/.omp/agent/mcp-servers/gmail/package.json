@@ -1,0 +1,15 @@
+{
+  "name": "omp-gmail-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local stdio Gmail MCP server for omp, using an existing OAuth refresh token.",
+  "type": "module",
+  "main": "server.mjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.0",
+    "zod": "4.6.5"
+  }
+}

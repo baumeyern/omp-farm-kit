@@ -1,0 +1,3 @@
+# impeccable engine binaries: the installer downloads them from the official release.
+*.exe
+home/.omp/agent/skills/impeccable/scripts/bin/

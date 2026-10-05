@@ -1,0 +1,13 @@
+{
+	"owner": "{{OWNER}}",
+	"repo": "",
+	"worktreeRoot": "",
+	"baseRef": "origin/main",
+	"upstreamRef": "origin/main",
+	"mergedRefs": ["origin/main"],
+	"linkNodeModules": true,
+	"setupCommands": [],
+	"compactModel": "anthropic/claude-opus-5-5",
+	"compactNoFallbackProviders": ["anthropic", "openai-codex"],
+	"compactDisabledProviders": ["cursor"]
+}
